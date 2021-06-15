@@ -148,11 +148,73 @@ const updateUsuarios = async(req, res = response) => {
 
 
 
+
+
+
+
+const getventa = async(req, res = response) => {
+    try {      
+        const data_venta = await pool.query(`SELECT venta.idventa, venta.fecha, venta.tipodoc, venta.numdoc, usuario.idusuario FROM venta, usuario WHERE venta.idusuario=usuario.idusuario`)
+        if(data_venta.rows.length===0){
+            return res.status(400).json({
+                msg: 'No hay venta!'
+            })
+        }
+        res.status(200).json({
+            venta: data_venta.rows
+        })
+    } catch (error) {
+        return res.status(500).json({
+            msg: 'Algo salio mal.!'
+        })
+    }
+}
+const getventabyid = async(req, res = response) => {
+    try {      
+        const { idventa } = req.params;
+        const data_venta = await pool.query(`SELECT venta.idventa, venta.fecha, venta.tipodoc, venta.numdoc, usuario.idusuario FROM venta, usuario WHERE venta.idusuario=usuario.idusuario and venta.idventa=$1`, [idventa])
+        if(data_venta.rows.length===0){
+            return res.status(400).json({
+                msg: 'Usuario no encontrado!'
+            })
+        }
+        res.status(200).json({
+            usuarios: data_venta.rows
+        })
+    } catch (error) {
+        return res.status(500).json({
+            msg: 'Algo salio mal.!'
+        })
+    }
+}
+const deleteventa = async(req, res = response) => {
+    try {      
+        const { idventa } = req.params;
+        const venta_eliminado = await pool.query(`DELETE FROM venta WHERE idventa=$1 RETURNING * `, [idventa])
+        if(venta_eliminado.rowCount===0){
+            return res.status(400).json({ 
+                msg: 'No existe esta venta!'
+            })
+        }
+        res.status(200).json({
+            msg: `venta ${ venta_eliminado.rows[0].venta } eliminada correctamente!`
+        })
+    } catch (error) {
+        return res.status(500).json({
+            msg: 'Algo salio mal.!'
+        })
+    }
+}
+
 module.exports = {
     login,
     createUser,
     getUsuarios,
     getUsuariosById,
     deleteUsuarios,
-    updateUsuarios
+    updateUsuarios,
+
+    getventa,
+    getventabyid,
+    deleteventa
 }
