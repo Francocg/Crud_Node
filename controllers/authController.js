@@ -154,7 +154,7 @@ const updateUsuarios = async(req, res = response) => {
 
 const getventa = async(req, res = response) => {
     try {      
-        const data_venta = await pool.query(`SELECT venta.idventa, venta.fecha, venta.tipodoc, venta.numdoc, usuario.idusuario FROM venta, usuario WHERE venta.idusuario=usuario.idusuario`)
+        const data_venta = await pool.query('select  venta.idventa,  cliente.nombres, cliente.apellidos, cliente.dni, cliente.direccion, producto.nomprod, detalle.precio, detalle.cantidad,  producto.precio, producto.stock, venta.fecha, venta.tipodoc, venta.numdoc from cliente, detalle, producto, venta')
         if(data_venta.rows.length===0){
             return res.status(400).json({
                 msg: 'No hay venta!'
@@ -172,10 +172,10 @@ const getventa = async(req, res = response) => {
 const getventabyid = async(req, res = response) => {
     try {      
         const { idventa } = req.params;
-        const data_venta = await pool.query(`SELECT venta.idventa, venta.fecha, venta.tipodoc, venta.numdoc, usuario.idusuario FROM venta, usuario WHERE venta.idusuario=usuario.idusuario and venta.idventa=$1`, [idventa])
+        const data_venta = await pool.query('select  venta.idventa, cliente.nombres, cliente.apellidos, cliente.dni, cliente.direccion, producto.nomprod, detalle.precio, detalle.cantidad,  producto.precio, producto.stock, venta.fecha, venta.tipodoc, venta.numdoc  from cliente, detalle, producto, venta where detalle.idproducto=producto.idproducto and detalle.idventa=venta.idventa and venta.idventa = $1 ', [idventa])
         if(data_venta.rows.length===0){
             return res.status(400).json({
-                msg: 'Usuario no encontrado!'
+                msg: 'venta no encontrado!'
             })
         }
         res.status(200).json({
@@ -201,7 +201,10 @@ const deleteventa = async(req, res = response) => {
         })
     } catch (error) {
         return res.status(500).json({
-            msg: 'Algo salio mal.!'
+            msg: 'Algo salio mal.!',
+            error
+
+
         })
     }
 }
